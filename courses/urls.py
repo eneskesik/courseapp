@@ -3,9 +3,9 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.kurslar),
+    path('', views.index),
     path('list', views.kurslar),
     path('<kurs_adi>', views.detail),
     path('kategori/<int:category_id>', views.getCourseByCategoryId),
-    path('kategori/<str:category_name>', views.getCourseByCategory),
+    path('kategori/<str:category_name>', views.getCourseByCategory, name='courses_by_category'),
 ]
