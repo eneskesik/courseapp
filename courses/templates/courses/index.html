@@ -1,10 +1,8 @@
 {% extends "layout.html" %}
+{% load static %}
 
 {% block css_files %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-{% endblock  %}
-
-{% block js_files %}
+    <link rel="stylesheet" href="{% static "courses/css/style.css/" %}">
 {% endblock  %}
 
 {% block page_title %}
@@ -15,21 +13,17 @@
 <div class="container mt-3">
     <div class="row">
         <div class="col-3">
-
-             {% comment %} {% include "courses/partials/_categories.html" %} {% endcomment %}
-
-             <div class="list-group">
-                {% for category in categories %}
-                <a href="{% url "courses_by_category" category %}" class="list-group-item list-group-item-action">{{ category }}</a>
-                {% endfor %}
-
-            </div>
-
-
+             {% include "courses/partials/_categories.html" %}
         </div>
         <div class="col-9">
-
+            {% for course in courses %}
+                    {% include "courses/partials/_course.html" %}
+            {% endfor %}
         </div>
     </div>
 </div>
 {% endblock content %}
+
+{% block js_files %}
+    <script src="{% static "courses/js/script.js/" %}"></script>
+{% endblock  %}

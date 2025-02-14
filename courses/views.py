@@ -1,18 +1,60 @@
+from datetime import date, datetime
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import reverse
 
 data = {
     "programlama":"Programlama Kursları",
-    "web-gelistirme":"Web Geliştirme Kursları",
-    "mobil":"Mobil Uygulama Geliştirme Kursları",
+    "web gelistirme":"Web Geliştirme Kursları",
+    "mobil uygulamalar":"Mobil Uygulama Geliştirme Kursları",
 }
+
+db = {
+    "courses": [
+        {
+            "title":"javascript kursu",
+            "description":"javascript kursu açıklaması",
+            "image":"1.jpg",
+            "slug":"javascript-kursu",
+            "date": datetime.now(),
+            "isActive": True,
+            "isUpdated": True
+        },
+        {
+            "title":"python kursu",
+            "description":"python kursu açıklaması",
+            "image":"2.jpg",
+            "slug":"python-kursu",
+            "date": date(2022,9,10),
+            "isActive": True,
+            "isUpdated": True
+        },
+        {
+            "title":"web geliştirme kursu",
+            "description":"web geliştirme kursu açıklaması",
+            "image":"3.jpg",
+            "slug":"web-gelistirme-kursu",
+            "date": date(2022,8,10),
+            "isActive": True,
+            "isUpdated": True
+        }
+
+    ],
+    "categories": [
+        {"id": 1, "name": "programlama", "slug": "programlama"},
+        {"id": 2, "name": "web gelistirme", "slug": "web gelistirme"},
+        {"id": 3, "name": "mobil uygulamalar", "slug": "mobil uygulamalar"},
+         ]
+}
+
 def index(request):
-    list_items = ""
-    category_list = list(data.keys())
+    # list comphension
+    kurslar = [course for course in db["courses"] if course["isActive"]==True]
+    kategoriler = db["categories"]
 
     return render(request, 'courses/index.html', {
-        'categories': category_list
+        'categories': kategoriler,
+        'courses': kurslar
     })
 
 def detail(request, kurs_adi):
