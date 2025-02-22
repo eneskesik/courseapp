@@ -1,1 +1,107 @@
-python3 manage.py runserver
+python3 manage.py runserver #serverda uygulama çalıştırma.
+
+python3 manage.py migrate    #migrationları migrate komutu
+
+python3 manage.py makemigrations      #kendi migrationını oluşturma komutu... oluşturduktan sonra tekrardan migrate(python3 manage.py migrate) etmeyi unutma!
+
+python3 manage.py shell   #uygulamaya sorgu yazmak için shell e gecme
+from courses.models import Course
+from datetime import datetime
+
+1.yol kurs ekleme
+kurs1 = Course(title="javascript kursu",description="güzel kurs",imageUrl="1.jpg",date=datetime.now(),isActive=1)
+kurs1.save
+
+2.yol kurs ekleme
+Course.objects.create(title="php kursu",description="güzel kurs",imageUrl="2.jpg",date=datetime.now(),isActive=1)
+
+kurs cagırma
+
+python3 manage.py shell
+from courses.models import Course
+Course.objects.all()
+
+kurslar = Course.objects.all()      tamamını çağırır.
+kurslar[2] komutu yanıt olarak <Course: Course object (3)> alırım.
+kurslar[2].title dersem 'asp.net kursu' cevabını alırım.
+kurs1=Course.objects.get(pk=1)      kaçıncı primary key girilirse sadece onu getirir.
+kurs1.title komutuna 'javascript kursu' cevabını alırım.
+
+Course.objects.get(title="javascript kursu")        get içine title girerse o title a sahip elemanım gelir.
+
+Course.objects.filter(isActive=0)   Filter komutu.
+
+kurslar = Course.objects.filter(isActive=0)   komutu <QuerySet [<Course: javascript kursu - 2025-02-19>]> yanıtını verir ve bu listedir.
+
+kurslar[0] dersem <Course: javascript kursu - 2025-02-19> yanıtını alırım ve listeden kursu çıkarmış olurum.
+
+kurs= Course.objects.get(isActive=0) get komutu ile tek bi elemanı çağırmış olurum liste gelmez ve cevap <Course: javascript kursu - 2025-02-19> olur.
+
+Course.objects.filter(date__lte='2025-01-01') komutu bu tarihten önceki elemanları liste olarak verir.
+<QuerySet []>
+
+lte <=
+lt <
+gt >
+gte >=
+
+__exact komutu kesinlik ifadesi büyük küçük harf uyumlu
+__iexact komutu büyük küçük harf dikkat etmez.
+
+Course.objects.filter(title__exact="javascript kursu")
+<QuerySet [<Course: javascript kursu - 2025-02-19>]>
+
+Course.objects.filter(title__exact="Javascript kursu")
+<QuerySet []>
+
+>>> Course.objects.filter(title__iexact="Javascript kursu")
+<QuerySet [<Course: javascript kursu - 2025-02-19>]>
+
+__contains metodu içerir benzer like 
+__icontains yine aynı büyük küçük harf uyumu aramaz.
+Course.objects.filter(title__contains="vascri")
+<QuerySet [<Course: javascript kursu - 2025-02-19>]>
+
+__startswith,__endswith metodları ... ile başlayanları ya da bitenleri getirir.
+Course.objects.filter(title__startswith="java")
+<QuerySet [<Course: javascript kursu - 2025-02-19>]>
+
+AND komut , ile verilir.
+
+Course.objects.filter(title__startswith="java",isActive=0)
+<QuerySet [<Course: javascript kursu - 2025-02-19>]>
+
+OR komutu Q(...) | Q(...) ile verilir.
+
+Course.objects.filter(Q(title__contains="php") | Q(title__contains="pyth"))
+<QuerySet [<Course: python kursu - 2025-02-19>, <Course: php kursu - 2025-02-19>]>
+
+AND ve OR yapısının birlikte kullanımı.
+Course.objects.filter(Q(title__contains="php") | Q(title__contains="pyth"),isActive=0)
+<QuerySet []>
+
+
+db de data güncelleme
+from courses.models import Course
+>>> kurs1=Course.objects.get(pk=1)
+>>> kurs1
+<Course: javascript kursu - 2025-02-19>
+kurs1.title = "Javascript Kursu"
+>>> kurs1.save()
+kurs1
+<Course: Javascript Kursu - 2025-02-19>
+
+
+.update() komutu
+>>> kurslar=Course.objects.filter(isActive=True)
+>>> kurslar
+<QuerySet [<Course: Javascript Kursu - 2025-02-19>, <Course: Python Kursu - 2025-02-19>, <Course: asp.net kursu - 2025-02-19>, <Course: php kursu - 2025-02-19>]>
+>>> kurslar.update(isActive=False)
+4
+>>> kurslar
+<QuerySet []>
+
+
+.delete() komutu
+kurs1 = Course.objects.get(pk=1)
+kurs1.delete()

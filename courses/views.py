@@ -1,80 +1,37 @@
-from datetime import date, datetime
-from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
-from django.shortcuts import redirect, render
+from datetime import datetime
+from django.http import Http404, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-
-data = {
-    "programlama":"Programlama Kursları",
-    "web gelistirme":"Web Geliştirme Kursları",
-    "mobil uygulamalar":"Mobil Uygulama Geliştirme Kursları",
-}
-
-db = {
-    "courses": [
-        {
-            "title":"javascript kursu",
-            "description":"javascript kursu açıklaması",
-            "image":"1.jpg",
-            "slug":"javascript-kursu",
-            "date": datetime.now(),
-            "isActive": True,
-            "isUpdated": True
-        },
-        {
-            "title":"python kursu",
-            "description":"python kursu açıklaması",
-            "image":"2.jpg",
-            "slug":"python-kursu",
-            "date": date(2022,9,10),
-            "isActive": True,
-            "isUpdated": True
-        },
-        {
-            "title":"web geliştirme kursu",
-            "description":"web geliştirme kursu açıklaması",
-            "image":"3.jpg",
-            "slug":"web-gelistirme-kursu",
-            "date": date(2022,8,10),
-            "isActive": True,
-            "isUpdated": True
-        }
-
-    ],
-    "categories": [
-        {"id": 1, "name": "programlama", "slug": "programlama"},
-        {"id": 2, "name": "web gelistirme", "slug": "web gelistirme"},
-        {"id": 3, "name": "mobil uygulamalar", "slug": "mobil uygulamalar"},
-         ]
-}
+from .models import Course, Category
 
 def index(request):
-    # list comphension
-    kurslar = [course for course in db["courses"] if course["isActive"]==True]
-    kategoriler = db["categories"]
-
+    """Ana sayfa: Aktif kursları ve kategorileri listele"""
+    kurslar = Course.objects.filter(isActive=True)
+    kategoriler = Category.objects.all()
+    
     return render(request, 'courses/index.html', {
         'categories': kategoriler,
         'courses': kurslar
     })
 
-def detail(request, kurs_adi):
-    return HttpResponse(f"{kurs_adi} detay sayfası")
+def detail(request, slug):
+    """Belirli bir kursun detay sayfası"""
+    course = get_object_or_404(Course, slug=slug)
+    
+    return render(request, 'courses/details.html', {'course': course})
 
-def getCourseByCategory(request, category_name):
-    try:
-        category_text = data[category_name]
-        return render(request, 'courses/kurslar.html', {
-            'category': category_name,
-            'category_text': category_text})
-    except:
-        return HttpResponseNotFound("<h1>Kategori bulunamadı<h1>")
+def getCourseByCategory(request, category_slug):
+    """Kategoriye göre kursları listele"""
+    category = get_object_or_404(Category, slug=category_slug)
+    courses = Course.objects.filter(isActive=True)  # Eğer kurslara kategori eklediysen: .filter(category=category)
+    
+    return render(request, 'courses/kurslar.html', {
+        'category': category.name,
+        'category_text': f"{category.name} kategorisindeki kurslar",
+        'courses': courses
+    })
 
 def getCourseByCategoryId(request, category_id):
-    category_list = list(data.keys())
-    if (category_id > len(category_list)):
-        return HttpResponseNotFound("<h1>Kategori bulunamadı<h1>")
-    category_name = category_list[category_id - 1] 
-
-    redirect_url = reverse('courses_by_category', args=[category_name])
-
-    return redirect(redirect_url)
+    """Kategori ID'ye göre yönlendirme yap"""
+    category = get_object_or_404(Category, id=category_id)
+    return redirect(reverse('courses_by_category', args=[category.slug]))
